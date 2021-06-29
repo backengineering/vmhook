@@ -79,7 +79,7 @@ image_loaded(
 		vm::decrypt_handler_t _decrypt_handler =
 			[](u64 val) -> u64
 		{
-			return _rotl64(val, 0x30);
+			return _rotr64(val, 0x30);
 		};
 
 		// > 0x00007FF77A233736 mov rcx, [r12+rax*8]
@@ -89,7 +89,7 @@ image_loaded(
 		vm::encrypt_handler_t _encrypt_handler =
 			[](u64 val) -> u64
 		{
-			return _rotr64(val, 0x30);
+			return _rotl64(val, 0x30);
 		};
 
 		vm::handler::edit_entry_t _edit_entry =
