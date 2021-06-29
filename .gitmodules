@@ -1,0 +1,6 @@
+[submodule "dependencies/vmhook"]
+	path = dependencies/vmhook
+	url = https://githacks.org/vmp2/vmhook.git
+[submodule "dependencies/ZwSwapCert"]
+	path = dependencies/ZwSwapCert
+	url = https://githacks.org/_xeroxz/zwswapcert.git
