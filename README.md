@@ -1,6 +1,6 @@
 ### About
 
-This is a small POC to show an interesting design weakness in VMProtect 2 which can aid an attacker in such a way that reading memory can be manipulated in a centralized way. In this POC all READQ/DW/B virtual instructions are hooked, when virtualized integrity check routines try and read unwriteable sections, the pointer is changed to an untouched clone of the driver. This means all inlined virtualized integrity checks can be bypassed with a few lines of code. This is not possible without the aid of VMProtect 2's design... So im refering to having reusable vm handlers as a design flaw...
+This is a small POC to show an interesting design weakness in VMProtect 2 which can aid an attacker in such a way that reading memory can be manipulated in a centralized way. In this POC all `READQ/DW/B` virtual instructions are hooked, when virtualized integrity check routines try and read unwriteable sections, the pointer is changed to an untouched clone of the driver. This means all inlined virtualized integrity checks can be bypassed with a few lines of code. This is not possible without the aid of VMProtect 2's design... So im refering to having reusable vm handlers as a design flaw...
 
 ```
 00000603	67.09356689	[vmhook-eac [core number = 20]] READ(Q/DW/B) EasyAntiCheat.sys+0x1000	
@@ -11,6 +11,10 @@ This is a small POC to show an interesting design weakness in VMProtect 2 which 
 ```
 
 *note: not all integrity checks are virtualized, there were at least one other outside of virtualization*
+
+#### SHA1 Integrity Checks
+
+Integrity checks outside of the VMProtect 2 virtual machine are not effected by my POC. In particular, a SHA1 hash of both `.text` and `.eac0` is computed, the SHA1 hash function itself is not virtualized so it is not effected by my `READQ/DW/B` hook.
 
 ### How To Update
 
