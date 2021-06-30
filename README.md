@@ -1,3 +1,5 @@
+This is a small POC to show an interesting design weakness in VMProtect 2 which aids an attacker in such a way that reading memory can be manipulated in a centralized way.
+
 These vm handler indexes are for EasyAntiCheat.sys 6/23/2021, when the driver gets re-vmprotected these vm handler indexes need to be updated.
 
 ```cpp
