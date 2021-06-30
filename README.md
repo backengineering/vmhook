@@ -1,4 +1,9 @@
+
+### About
+
 This is a small POC to show an interesting design weakness in VMProtect 2 which can aid an attacker in such a way that reading memory can be manipulated in a centralized way. In this POC all READQ/DW/B virtual instructions are hooked, when virtualized integrity check routines try and read unwriteable sections, the pointer is changed to an untouched clone of the driver. This means all inlined virtualized integrity checks can be bypassed with a few lines of code. This is not possible without the aid of VMProtect 2's design... So im refering to having reusable vm handlers as a design flaw...
+
+### How To Update
 
 These vm handler indexes are for EasyAntiCheat.sys 6/23/2021, when the driver gets re-vmprotected these vm handler indexes need to be updated.
 
