@@ -71,9 +71,14 @@
   <ItemGroup>
     <ClCompile Include="dependencies\vmhook\src\vmhook.cpp" />
     <ClCompile Include="drv_entry.cpp" />
+    <ClCompile Include="scn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\vmhook\include\vmhook.hpp" />
+    <ClInclude Include="md5.hpp" />
+    <ClInclude Include="scn.hpp" />
+    <ClInclude Include="sha1.hpp" />
+    <ClInclude Include="shithook.hpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="dependencies\vmhook\src\vtrap.asm" />
