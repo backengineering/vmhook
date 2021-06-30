@@ -16,6 +16,13 @@ This is a small POC to show an interesting design weakness in VMProtect 2 which 
 
 Integrity checks outside of the VMProtect 2 virtual machine are not effected by my POC. In particular, a SHA1 hash of both `.text` and `.eac0` is computed, the SHA1 hash function itself is not virtualized so it is not effected by my `READQ/DW/B` hook.
 
+```
+00126334	68.50553894	[vmhook-eac [core number = 13]]sha1 hash data = 0xFFFFF80061B91000, len = 0x51d28, result = 0xFFFFFE8158E60BF0	
+00126335	68.50672913	[vmhook-eac [core number = 13]]sha1 hash data = 0xFFFFF80061C0B000, len = 0x2bc79d, result = 0xFFFFFE8158E60BF0	
+```
+
+Thus a hook is placed on this SHA1 hash function and spoofed results are computed...
+
 ### How To Update
 
 These vm handler indexes are for EasyAntiCheat.sys 6/23/2021, when the driver gets re-vmprotected these vm handler indexes need to be updated.
