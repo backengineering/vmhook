@@ -27,6 +27,12 @@ Integrity checks outside of the VMProtect 2 virtual machine are not effected by 
 
 Thus a hook is placed on this SHA1 hash function and spoofed results are computed...
 
+### Solution, Possible Alternatives
+
+If EasyAntiCheat were to patch their own driver using `MmMapIoSpaceEx` - `PAGE_READWRITE` (for HVCI support), they could compute a SHA1 hash, then revert the changes, compute a second SHA1 hash...
+
+If the hashes are the same, then you know someone is hooking SHA1, or hooking `READQ/DW/B` virtual instructions...
+
 ### How To Update
 
 These vm handler indexes are for EasyAntiCheat.sys 6/23/2021, when the driver gets re-vmprotected these vm handler indexes need to be updated.
