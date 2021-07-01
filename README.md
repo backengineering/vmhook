@@ -18,7 +18,7 @@ This is a small POC to show an interesting design weakness in VMProtect 2 which 
 
 #### SHA1 Integrity Checks
 
-Integrity checks outside of the VMProtect 2 virtual machine are not effected by my POC. In particular, a SHA1 hash of both `.text` and `.eac0` is computed, the SHA1 hash function itself is not virtualized so it is not effected by my `READQ/DW/B` hook.
+Integrity checks outside of the VMProtect 2 virtual machine are not effected by my POC. In particular, a SHA1 hash of both `.text` and `.eac0` is computed, the SHA1 hash function itself is not virtualized so it is not affected by my `READQ/DW/B` hook.
 
 ```
 00126334	68.50553894	[vmhook-eac [core number = 13]]sha1 hash data = 0xFFFFF80061B91000, len = 0x51d28, result = 0xFFFFFE8158E60BF0	
