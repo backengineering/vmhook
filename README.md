@@ -1,10 +1,10 @@
 ![](https://githacks.org/_xeroxz/vmhook-eac/-/raw/a2e38c76b1fb9a53527c2441b06bb25b768d9959/bin/running-with-patch.png)
 
-### About
+### About - Hooking Into The VMProtect 2 Virtual Machine And Spoofing Memory Reads
 
 This is a small POC to show an interesting design weakness in VMProtect 2 which can aid an attacker in such a way that reading memory can be manipulated in a centralized way. In this POC all `READQ/DW/B` virtual instructions are hooked, when virtualized integrity check routines try and read unwriteable sections, the pointer is changed to an untouched clone of the driver. This means all inlined virtualized integrity checks can be bypassed with a few lines of code. This is not possible without the aid of VMProtect 2's design... So im refering to having reusable vm handlers as a design weakness...
 
-***This is less about EasyAntiCheat and more about a design weakness in VMProtect 2... EasyAntiCheat is mearly used for a real world example, in addition, nothing released here is undetected, it has plenty of detection vectors...***
+***This is less about EasyAntiCheat and more about a design weakness in VMProtect 2... EasyAntiCheat is merely used for a real world example, in addition, nothing released here is undetected, it has plenty of detection vectors...***
 
 ```
 00000603	67.09356689	[vmhook-eac [core number = 20]] READ(Q/DW/B) EasyAntiCheat.sys+0x1000	
