@@ -53,7 +53,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
     <EnableInf2cat>false</EnableInf2cat>
-    <IncludePath>$(ProjectDir)dependencies\vmhook\include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)dependencies\vmhook\include\;$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -63,30 +63,34 @@
     <Link>
       <EntryPointSymbol>ScDriverEntry</EntryPointSymbol>
       <AdditionalOptions>/SECTION:.text,RWE %(AdditionalOptions)</AdditionalOptions>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <ForceFileOutput>Enabled</ForceFileOutput>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dependencies\vmhook\src\vmhook.cpp" />
-    <ClCompile Include="drv_entry.cpp" />
-    <ClCompile Include="scn.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="dependencies\vmhook\include\vmhook.hpp" />
-    <ClInclude Include="md5.hpp" />
-    <ClInclude Include="scn.hpp" />
-    <ClInclude Include="sha1.hpp" />
-    <ClInclude Include="shithook.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="dependencies\vmhook\src\vtrap.asm" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="dependencies\vmhook\src\vmhook.vcxproj">
+      <Project>{d257c9f6-c705-49d5-84ed-64c9c513c419}</Project>
+    </ProjectReference>
     <ProjectReference Include="dependencies\ZwSwapCert\ZwSwapCert\ZwSwapCert.vcxproj">
       <Project>{475ea8a7-c1ba-4847-b9c3-198c9738e0c0}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".clang-format" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\drv_entry.cpp" />
+    <ClCompile Include="src\scn.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dependencies\vmhook\include\vmhook.hpp" />
+    <ClInclude Include="include\scn.hpp" />
+    <ClInclude Include="include\sha1.hpp" />
+    <ClInclude Include="include\shithook.hpp" />
+    <ClInclude Include="include\vmhook-eac.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
