@@ -27,7 +27,8 @@ Integrity checks outside of the VMProtect 2 virtual machine are not effected by 
 
 *Side Note: Check out that len? its not aligned, this means you can patch the alignment/padding at the end of both of these sections if you wanted and the SHA1 integrity checks would be fine...*
 
-Thus a hook is placed on this SHA1 hash function and spoofed results are computed...
+Thus a hook is placed on this SHA1 hash function and spoofed results are computed... you can locate this function by searching for SHA1 magic numbers: 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0... The SHA1 function should really be virtualized since these magic constant values can be located instantly...
+
 
 ### Solution, Possible Alternatives
 
