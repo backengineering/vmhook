@@ -37,6 +37,8 @@ Thus a hook is placed on this SHA1 hash function and spoofed results are compute
 
 ### How To Update
 
+#### VM Handler Table Indexes
+
 These vm handler indexes are for EasyAntiCheat.sys 6/23/2021, when the driver gets re-vmprotected these vm handler indexes need to be updated.
 
 ```cpp
@@ -59,6 +61,8 @@ inline u8 g_readdw_idxs[] = { 218, 180, 179, 178, 163, 137, 92, 22, 12 };
 inline u8 g_readb_idxs[] = { 249, 231, 184, 160, 88, 85, 48, 9, 2 };
 ```
 
+#### Offsets
+
 `EAC_VM_HANDLE_OFFSET` contains the offset from the module base to the vm handler table, as of right now EAC only uses a single virtual machine in their VMProtect config so there is only a single vm handler table...
  
 `EAC_SHA1_OFFSET` contains the offset from the module base to the sha1 function...
@@ -73,4 +77,24 @@ memory... I didnt want to read it off disk so I just made it a macro here...
 #define EAC_VM_HANDLE_OFFSET 0xE93D
 #define EAC_SHA1_OFFSET 0x4C00
 #define EAC_IMAGE_BASE 0x140000000
+```
+
+#### VM Handler Table Entry Encrypt/Decrypt
+
+Since EasyAntiCheat is only using a single VM in their VMProtect 2 config, you will only need to update these two lambdas with the new instruction that is used to decrypt virtual machine handler table entries...
+
+You can use [vmprofiler-cli](https://githacks.org/vmp2/vmprofiler-cli/-/releases) to obtain these instructions... Since the entry point of the driver is virtualized you can simply take the "AddressOfEntryPoint" relative virtual address and use it as the `--vmentry` flag...
+
+```cpp
+// > 0x00007FF77A233736 mov rcx, [r12+rax*8]
+// > 0x00007FF77A23373D ror rcx, 0x30 <--- decrypt vm handler entry...
+// > 0x00007FF77A233747 add rcx, r13
+// > 0x00007FF77A23374A jmp rcx
+vm::decrypt_handler_t _decrypt_handler = []( u64 val ) -> u64 { return _rotr64( val, 0x30 ); };
+
+// > 0x00007FF77A233736 mov rcx, [r12+rax*8]
+// > 0x00007FF77A23373D ror rcx, 0x30 <--- inverse to encrypt vm handler entry...
+// > 0x00007FF77A233747 add rcx, r13
+// > 0x00007FF77A23374A jmp rcx
+vm::encrypt_handler_t _encrypt_handler = []( u64 val ) -> u64 { return _rotl64( val, 0x30 ); };
 ```
