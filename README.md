@@ -31,7 +31,7 @@ Thus a hook is placed on this SHA1 hash function and spoofed results are compute
 
 ### Solution, Possible Alternatives
 
-* 1.) If EasyAntiCheat were to patch their own driver using `MmMapIoSpaceEx` - `PAGE_READWRITE` (for HVCI support), they could compute a SHA1 hash, then revert the changes, compute a second SHA1 hash... If the hashes are the same, then you know someone is hooking SHA1, or hooking `READQ/DW/B` virtual instructions... ***When i say patch i mean, change some padding/alignment bytes at the end of a segment***...
+* 1.) If EasyAntiCheat were to patch their own driver using `MmMapIoSpaceEx` - `PAGE_READWRITE` (for HVCI support), they could compute a SHA1 hash, then revert the changes, compute a second SHA1 hash... If the hashes are the same, then you know someone is hooking SHA1, or hooking `READQ/DW/B` virtual instructions... ***When i say patch i mean, change some padding/alignment bytes at the end of an unwriteable section***...
 
 * 2.) Map the driver into the usermode service as READONLY, this way the usermode service can just read the mapping and compute a hash... This has its own attack vectors considering it would require calling out to ntoskrnl/external code, however the idea is what matters, having multiple sources of integrity checking is ideal.
 
