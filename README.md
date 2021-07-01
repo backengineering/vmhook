@@ -25,6 +25,8 @@ Integrity checks outside of the VMProtect 2 virtual machine are not effected by 
 00126335	68.50672913	[vmhook-eac [core number = 13]]sha1 hash data = 0xFFFFF80061C0B000, len = 0x2bc79d, result = 0xFFFFFE8158E60BF0	
 ```
 
+*Side Note: Check out that len? its not aligned, this means you can patch the alignment/padding at the end of both of these sections if you wanted and the SHA1 integrity checks would be fine...*
+
 Thus a hook is placed on this SHA1 hash function and spoofed results are computed...
 
 ### Solution, Possible Alternatives
