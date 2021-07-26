@@ -1,3 +1,5 @@
+# If you are looking for multi-vm support please [refer to this branch](https://githacks.org/_xeroxz/vmhook-eac/-/tree/multi-vm)
+
 ![](https://githacks.org/_xeroxz/vmhook-eac/-/raw/a2e38c76b1fb9a53527c2441b06bb25b768d9959/bin/running-with-patch.png)
 
 ### About - Hooking Into The VMProtect 2 Virtual Machine And Spoofing Memory Reads
