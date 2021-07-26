@@ -23,7 +23,7 @@ __declspec( noinline ) void hook_sha1( void *data, unsigned int len, void *resul
     //
     // if EAC is trying to sha1 hash any data in readonly sections...
     // then we hash the clone of the driver before it was patched...
-    // 
+    //
     // note: relocations are the same in the clone so those wont need to be handled...
     //
 
@@ -47,20 +47,8 @@ void image_loaded( PUNICODE_STRING image_name, HANDLE pid, PIMAGE_INFO image_inf
 {
     if ( !pid && wcsstr( image_name->Buffer, L"EasyAntiCheat.sys" ) )
     {
-        if ( g_vmhook && g_vm_table && g_image_clone )
-            delete g_vmhook, delete g_vm_table, ExFreePool( ( void * )g_image_clone );
-
-        // > 0x00007FF77A233736 mov rcx, [r12+rax*8]
-        // > 0x00007FF77A23373D ror rcx, 0x30 <--- decrypt vm handler entry...
-        // > 0x00007FF77A233747 add rcx, r13
-        // > 0x00007FF77A23374A jmp rcx
-        vm::decrypt_handler_t _decrypt_handler = []( u64 val ) -> u64 { return _rotr64( val, 0x30 ); };
-
-        // > 0x00007FF77A233736 mov rcx, [r12+rax*8]
-        // > 0x00007FF77A23373D ror rcx, 0x30 <--- inverse to encrypt vm handler entry...
-        // > 0x00007FF77A233747 add rcx, r13
-        // > 0x00007FF77A23374A jmp rcx
-        vm::encrypt_handler_t _encrypt_handler = []( u64 val ) -> u64 { return _rotl64( val, 0x30 ); };
+        if ( vm::g_vmctx && g_image_clone )
+            delete vm::g_vmctx, ExFreePool( ( void * )g_image_clone );
 
         vm::handler::edit_entry_t _edit_entry = []( u64 *entry_ptr, u64 val ) -> void {
             //
@@ -68,10 +56,10 @@ void image_loaded( PUNICODE_STRING image_name, HANDLE pid, PIMAGE_INFO image_inf
             //
 
             {
+                _disable();
                 auto cr0 = __readcr0();
                 cr0 &= 0xfffffffffffeffff;
                 __writecr0( cr0 );
-                _disable();
             }
 
             *entry_ptr = val;
@@ -83,29 +71,22 @@ void image_loaded( PUNICODE_STRING image_name, HANDLE pid, PIMAGE_INFO image_inf
             {
                 auto cr0 = __readcr0();
                 cr0 |= 0x10000;
-                _enable();
                 __writecr0( cr0 );
+                _enable();
             }
         };
 
         auto image_base = reinterpret_cast< u64 >( image_info->ImageBase );
-        auto handler_table_ptr = reinterpret_cast< u64 * >( image_base + EAC_VM_HANDLE_OFFSET );
 
         //
         // Clone the entire driver into a kernel pool, keep in mind relocations will also be
         // the same as the original driver! Dont call any code in this clone, only refer to it...
         //
 
+        vm::g_vmctx = new vm::hook_t();
+        g_image_base = image_base, g_image_size = image_info->ImageSize;
         g_image_clone = ( u64 )RtlCopyMemory( ExAllocatePool( NonPagedPool, image_info->ImageSize ),
                                               image_info->ImageBase, image_info->ImageSize );
-
-        //
-        // allocate memory for a g_vmhook, and g_vm_table...
-        //
-
-        g_vm_table = new vm::handler::table_t( handler_table_ptr, _edit_entry );
-        g_vmhook = new vm::hook_t( image_base, EAC_IMAGE_BASE, _decrypt_handler, _encrypt_handler, g_vm_table );
-        g_image_base = image_base, g_image_size = image_info->ImageSize;
 
         const auto callback = []( vm::registers *regs, u8 handler_idx ) {
             const auto read_addr = reinterpret_cast< u64 * >( regs->rbp )[ 0 ];
@@ -113,27 +94,27 @@ void image_loaded( PUNICODE_STRING image_name, HANDLE pid, PIMAGE_INFO image_inf
             // shoot the tires right off the virtualized integrity checks in about 2 lines of code...
             if ( scn::read_only( g_image_base, read_addr ) )
             {
-                DBG_PRINT( " READ(Q/DW/B) EasyAntiCheat.sys+0x%x\n", ( read_addr - g_image_base ) );
+                // DBG_PRINT( " READ(Q/DW/B) EasyAntiCheat.sys+0x%x\n", ( read_addr - g_image_base ) );
                 reinterpret_cast< u64 * >( regs->rbp )[ 0 ] = g_image_clone + ( read_addr - g_image_base );
             }
         };
 
-        // install hooks on READQ virtual machine handlers...
-        for ( auto idx = 0u; idx < sizeof g_readq_idxs; ++idx )
-            g_vm_table->set_callback( g_readq_idxs[ idx ], callback );
+        for ( auto idx = 0u; idx < VM_COUNT; ++idx )
+        {
+            auto vm_handler_table =
+                new vm::handler::table_t( g_image_base, EAC_IMAGE_BASE, vm_meta_data[ idx ]->table_rva, _edit_entry,
+                                          vm_meta_data[ idx ]->decrypt, vm_meta_data[ idx ]->encrypt );
 
-        // install hooks on READDW virtual machine handlers...
-        for ( auto idx = 0u; idx < sizeof g_readdw_idxs; ++idx )
-            g_vm_table->set_callback( g_readdw_idxs[ idx ], callback );
+            for ( auto cnt = 0u; cnt < vm_meta_data[ idx ]->read_callback_count; ++cnt )
+                vm_handler_table->set_callback( vm_meta_data[ idx ]->read_callback_indexes[ cnt ], callback );
 
-        // install hooks on READB virtual machine handlers...
-        for ( auto idx = 0u; idx < sizeof g_readb_idxs; ++idx )
-            g_vm_table->set_callback( g_readb_idxs[ idx ], callback );
+            vm::g_vmctx->add_table( vm_handler_table );
+        }
 
         //
         // hooks all vm handlers and starts callbacks...
         //
-        g_vmhook->start();
+        vm::g_vmctx->start();
 
         // hook on sha1 since it executes outside of the virtual machine...
         // and does an integrity check on .text and .eac0...

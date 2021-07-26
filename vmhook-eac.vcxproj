@@ -59,6 +59,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <EntryPointSymbol>ScDriverEntry</EntryPointSymbol>
